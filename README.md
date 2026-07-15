@@ -9,6 +9,7 @@ Built as a proof-of-work project for the **Data Analyst – Quality and Customer
 - Vehicle models (Class 8 Truck, Electric Van, Commercial Bus, Heavy Hauler) mirror Greensboro's commercial vehicle / heavy truck / EV focus; the header also nods to the rail and energy programs the same center supports.
 - The **PP100 (complaints per 100 units)** KPI is the same problems-per-100-vehicles metric used industry-wide (e.g. J.D. Power's Initial Quality Study) for tracking customer-reported issues against production volume — a direct hit on the "Customer Satisfaction" half of the role.
 - The anomaly detection, forecasting, and root-cause sections map to the JD's call for statistical techniques, early detection of emerging quality issues, and ML-based analysis.
+- `EDA.ipynb` and the SQL layer (`build_database.py`, `queries.sql`) cover the JD's Jupyter Notebook and SQL requirements directly, rather than just being mentioned in passing.
 - The footer notes this is a Python prototype today, with the same logic intended to carry over to Power BI + Azure Analytics for production reporting — the JD's listed tooling.
 
 ## Features
@@ -34,18 +35,34 @@ Built as a proof-of-work project for the **Data Analyst – Quality and Customer
 
 The script is deterministic (fixed random seed) and safe to re-run any time — it simply regenerates and overwrites `quality_data.csv`.
 
+## EDA notebook
+
+`EDA.ipynb` is the exploratory analysis behind the dashboard: descriptive statistics, monthly trend and category/model breakdowns, a correlation matrix across quality signals, and two hypothesis tests (Welch's t-test) —
+
+- confirming the 2023 → 2025 defect-rate improvement is statistically significant (not just a visual trend), and
+- confirming the Electric Van / Electrical anomaly window is statistically distinct from baseline, not noise.
+
+It closes with a cross-check that pulls the PP100 metric via raw SQL against the SQLite database and confirms it matches the pandas computation exactly.
+
+## SQL layer
+
+`build_database.py` loads `quality_data.csv` into a SQLite database (`quality_data.db`). `queries.sql` holds standalone SQL — KPI rollups, the PP100 metric by vehicle model, a window-function (LAG) root-cause query, and an anomaly-flagging query — that reproduces the dashboard's key numbers in SQL rather than pandas.
+
 ## Stack
 
-Python, Pandas, NumPy, Plotly Dash, scikit-learn (Isolation Forest)
+Python, Pandas, NumPy, Plotly Dash, scikit-learn (Isolation Forest), Jupyter, SQLite
 
 ## Running it
 
 ```bash
 # Install dependencies
-pip install pandas numpy plotly dash scikit-learn
+pip install pandas numpy plotly dash scikit-learn matplotlib seaborn scipy jupyter
 
 # Generate the dataset (already included, but safe to re-run)
 python generate_data.py
+
+# Build the SQLite database for the SQL layer / notebook
+python build_database.py
 
 # Run the dashboard
 python app.py
@@ -53,11 +70,16 @@ python app.py
 
 Then open http://localhost:8050
 
+To explore the EDA notebook: `jupyter notebook EDA.ipynb`
+
 ## Project structure
 
 ```
 app.py              # Dash application: layout, callbacks, charts
 generate_data.py     # Synthetic dataset generator
 quality_data.csv     # Generated dataset (3,528 rows)
+build_database.py   # Loads quality_data.csv into quality_data.db (SQLite)
+queries.sql          # Standalone SQL analysis queries
+EDA.ipynb            # Exploratory data analysis + hypothesis tests
 assets/style.css      # Dashboard styling
 ```
