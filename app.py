@@ -232,7 +232,22 @@ app.layout = html.Div(
                         html.H1("Commercial Vehicle Quality Intelligence Dashboard"),
                         html.P(
                             "Defect monitoring, ML-based anomaly detection, and forecasting "
-                            "for commercial vehicle manufacturing quality teams."
+                            "built around the quality and customer satisfaction data problems "
+                            "commercial vehicle, heavy truck, EV, rail, and energy engineering "
+                            "programs deal with daily."
+                        ),
+                        html.Div(
+                            className="industry-badges",
+                            children=[
+                                html.Span(label, className="industry-badge")
+                                for label in [
+                                    "Commercial Vehicle",
+                                    "Heavy Truck",
+                                    "Electric Vehicle",
+                                    "Rail",
+                                    "Energy",
+                                ]
+                            ],
                         ),
                     ]
                 ),
@@ -247,6 +262,7 @@ app.layout = html.Div(
                 kpi_card("kpi-warranty", "Warranty Claims"),
                 kpi_card("kpi-complaints", "Customer Complaints"),
                 kpi_card("kpi-rate", "Avg Defect Rate"),
+                kpi_card("kpi-pp100", "Complaints per 100 Units (PP100)"),
             ],
         ),
         html.Div(
@@ -325,7 +341,12 @@ app.layout = html.Div(
         dcc.Store(id="filtered-data-store"),
         html.Div(
             className="footer",
-            children="Built by Abdul Hannan — Vehicle Quality Analytics Dashboard",
+            children=(
+                "Built by Abdul Hannan — prepared for the Data Analyst, Quality & Customer "
+                "Satisfaction role at ALTEN Technology USA's Greensboro, NC engineering center. "
+                "Python prototype today; the same trend, anomaly-detection, and forecasting "
+                "logic maps directly onto Power BI + Azure Analytics for production reporting."
+            ),
         ),
     ],
 )
@@ -358,6 +379,9 @@ def apply_filters(models, categories, lines):
     Output("kpi-rate-value", "children"),
     Output("kpi-rate-trend", "children"),
     Output("kpi-rate-trend", "style"),
+    Output("kpi-pp100-value", "children"),
+    Output("kpi-pp100-trend", "children"),
+    Output("kpi-pp100-trend", "style"),
     Output("chart-trend", "figure"),
     Output("chart-category", "figure"),
     Output("chart-anomaly", "figure"),
@@ -385,6 +409,15 @@ def update_dashboard(models, categories, lines):
     total_complaints = int(frame["customer_complaints"].sum())
     avg_rate = frame["defect_rate"].mean() if len(frame) else 0
 
+    def pp100(slice_frame: pd.DataFrame) -> float:
+        """Complaints per 100 units produced — the industry-standard quality
+        metric (as used in J.D. Power's Initial Quality Study) for tracking
+        customer-reported problems relative to production volume."""
+        volume = slice_frame["production_volume"].sum()
+        return (slice_frame["customer_complaints"].sum() / volume * 100) if volume else 0
+
+    avg_pp100 = pp100(frame)
+
     defects_txt, defects_color = trend_badge(
         latest_slice["defect_count"].sum(), prior_slice["defect_count"].sum()
     )
@@ -398,6 +431,7 @@ def update_dashboard(models, categories, lines):
         latest_slice["defect_rate"].mean() if len(latest_slice) else 0,
         prior_slice["defect_rate"].mean() if len(prior_slice) else 0,
     )
+    pp100_txt, pp100_color = trend_badge(pp100(latest_slice), pp100(prior_slice))
 
     # --- Defect & warranty trend ---
     trend_monthly = (
@@ -521,7 +555,7 @@ def update_dashboard(models, categories, lines):
         )
     )
     fig_impact.update_layout(
-        title="Customer Impact by Vehicle Model", barmode="group", **CHART_LAYOUT_DEFAULTS
+        title="Customer Satisfaction Impact by Vehicle Model", barmode="group", **CHART_LAYOUT_DEFAULTS
     )
 
     # --- Heatmap ---
@@ -608,6 +642,9 @@ def update_dashboard(models, categories, lines):
         f"{avg_rate:.2f}%",
         rate_txt,
         {"color": rate_color},
+        f"{avg_pp100:.1f}",
+        pp100_txt,
+        {"color": pp100_color},
         fig_trend,
         fig_category,
         fig_anomaly,
