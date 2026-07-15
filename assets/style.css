@@ -1,0 +1,268 @@
+/* Commercial Vehicle Quality Intelligence Dashboard — premium theme */
+
+:root {
+  --navy: #1F3864;
+  --red: #E63946;
+  --green: #2DC653;
+  --amber: #F4A261;
+  --slate: #5C6B7A;
+  --page-bg: #F4F6F9;
+  --card-bg: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #2B2F36;
+}
+
+.page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+}
+
+/* Header */
+.header-banner {
+  background: linear-gradient(135deg, var(--navy) 0%, #142948 100%);
+  color: white;
+  margin: 0 -24px 24px;
+  padding: 36px 24px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header-banner h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.header-banner p {
+  margin: 0;
+  font-size: 14.5px;
+  color: #C9D6E8;
+  max-width: 640px;
+}
+
+.header-meta {
+  font-size: 14px;
+  color: #C9D6E8;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+}
+
+.filter-item {
+  min-width: 200px;
+  flex: 1;
+}
+
+.filter-item label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--slate);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+}
+
+.export-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 260px;
+}
+
+.export-btn {
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.export-btn:hover {
+  opacity: 0.88;
+}
+
+.export-btn.secondary {
+  background: white;
+  color: var(--navy);
+  border: 1.5px solid var(--navy);
+}
+
+/* KPI cards */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.kpi-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+  border-top: 4px solid var(--navy);
+}
+
+.kpi-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--slate);
+  margin-bottom: 8px;
+}
+
+.kpi-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.1;
+}
+
+.kpi-trend {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Chart grid */
+.chart-grid {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.chart-grid.two-col {
+  grid-template-columns: 1fr 1fr;
+}
+
+.chart-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 8px 12px 4px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+}
+
+/* Section cards (root cause, table) */
+.section-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 24px 26px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+  margin-bottom: 18px;
+}
+
+.section-card h2 {
+  margin: 0 0 4px;
+  font-size: 19px;
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.section-subtitle {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  color: var(--slate);
+}
+
+/* Root cause list */
+.root-cause-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 4px;
+  border-bottom: 1px solid #EDEFF3;
+}
+
+.root-cause-item:last-child {
+  border-bottom: none;
+}
+
+.root-cause-rank {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--amber);
+  width: 34px;
+  flex-shrink: 0;
+}
+
+.root-cause-body {
+  flex: 1;
+}
+
+.root-cause-title {
+  font-weight: 700;
+  color: #2B2F36;
+  font-size: 15px;
+}
+
+.root-cause-recommendation {
+  font-size: 13.5px;
+  color: var(--slate);
+  margin-top: 2px;
+}
+
+.root-cause-pct {
+  font-size: 18px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  color: var(--slate);
+  font-size: 12.5px;
+  padding: 18px 0 4px;
+}
+
+@media (max-width: 960px) {
+  .chart-grid.two-col {
+    grid-template-columns: 1fr;
+  }
+  .kpi-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media print {
+  .filter-bar, .footer, .export-actions {
+    display: none !important;
+  }
+  .chart-grid, .kpi-row {
+    break-inside: avoid;
+  }
+}
