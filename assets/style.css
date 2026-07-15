@@ -14,6 +14,28 @@
   box-sizing: border-box;
 }
 
+/* Opacity-only on purpose: any keyframe animation that touches `transform`
+   (even one that resolves to none/identity) makes Chromium/WebKit hold a
+   permanent stacking context on the element for as long as fill-mode keeps
+   the animation "active" — which then traps floating UI (open dropdown
+   menus) behind normal cards later in the DOM. A hover :transition on
+   transform doesn't have this problem, only a keyframe :animation does. */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
 body {
   margin: 0;
   background: var(--page-bg);
@@ -116,6 +138,86 @@ body {
   min-width: 260px;
 }
 
+/* Dropdowns (Dash's native dropdown component) */
+.dash-dropdown {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  background: white;
+  border: 1.5px solid #E1E5EB;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #2B2F36;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dash-dropdown:hover {
+  border-color: #B8C4D6;
+}
+
+.dash-dropdown[aria-expanded="true"] {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(31, 56, 100, 0.1);
+}
+
+.dash-dropdown-placeholder {
+  color: #8A97A6;
+}
+
+.dash-dropdown-trigger-icon {
+  color: var(--slate);
+  transition: transform 0.15s ease;
+}
+
+.dash-dropdown[aria-expanded="true"] .dash-dropdown-trigger-icon {
+  transform: rotate(180deg);
+}
+
+.dash-dropdown-search-container {
+  border-radius: 6px;
+  outline: none !important;
+  border-color: #E1E5EB !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dash-dropdown-search-container:focus-within {
+  border-color: var(--navy) !important;
+  box-shadow: 0 0 0 3px rgba(31, 56, 100, 0.1);
+}
+
+.dash-dropdown-search {
+  border: none;
+  padding: 8px 10px;
+  font-size: 13.5px;
+  font-family: inherit;
+  outline: none;
+}
+
+.dash-options-list.dash-dropdown-options {
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.16);
+  border: 1px solid #E7EAEE;
+  overflow: hidden;
+  animation: fadeInUp 0.15s ease-out both;
+}
+
+.dash-options-list-option.dash-dropdown-option {
+  padding: 9px 14px;
+  font-size: 13.5px;
+  transition: background-color 0.12s ease;
+  cursor: pointer;
+}
+
+.dash-options-list-option.dash-dropdown-option:hover {
+  background-color: #F4F7FC;
+}
+
+.dash-options-list-option-checkbox {
+  accent-color: var(--navy);
+}
+
 .export-btn {
   background: var(--navy);
   color: white;
@@ -125,17 +227,29 @@ body {
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
 .export-btn:hover {
-  opacity: 0.88;
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(31, 56, 100, 0.25);
+}
+
+.export-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .export-btn.secondary {
   background: white;
   color: var(--navy);
   border: 1.5px solid var(--navy);
+}
+
+.export-btn.secondary:hover {
+  background: #F4F7FC;
+  box-shadow: 0 4px 12px rgba(31, 56, 100, 0.12);
 }
 
 /* KPI cards */
@@ -152,6 +266,12 @@ body {
   padding: 20px 22px;
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
   border-top: 4px solid var(--navy);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.1);
 }
 
 .kpi-label {
@@ -174,6 +294,7 @@ body {
   margin-top: 8px;
   font-size: 13px;
   font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 /* Chart grid */
@@ -192,6 +313,12 @@ body {
   border-radius: 12px;
   padding: 8px 12px 4px;
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.09);
 }
 
 /* Section cards (root cause, table) */
@@ -201,6 +328,11 @@ body {
   padding: 24px 26px;
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
   margin-bottom: 18px;
+  transition: box-shadow 0.2s ease;
+}
+
+.section-card:hover {
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.08);
 }
 
 .section-card h2 {
@@ -221,8 +353,15 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 14px 4px;
+  padding: 14px 10px;
+  margin: 0 -10px;
   border-bottom: 1px solid #EDEFF3;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.root-cause-item:hover {
+  background-color: #F7F9FC;
 }
 
 .root-cause-item:last-child {
@@ -257,6 +396,16 @@ body {
   font-size: 18px;
   font-weight: 800;
   flex-shrink: 0;
+}
+
+/* Data tables (incidents + FMEA) */
+.dash-table-container table.cell-table tbody tr td {
+  transition: background-color 0.12s ease;
+}
+
+#incidents-table .cell-table tbody tr:hover td,
+#fmea-table .cell-table tbody tr:hover td {
+  background-color: #F0F4FA !important;
 }
 
 /* Footer */

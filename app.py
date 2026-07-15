@@ -166,6 +166,11 @@ CHART_LAYOUT_DEFAULTS = dict(
     paper_bgcolor="white",
     margin=dict(l=50, r=30, t=60, b=40),
     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    # Animate data updates on filter changes instead of a jump-cut redraw.
+    # (uirevision was tried here too, but combined with transition + a
+    # changing data shape across filters it locked axes onto stale,
+    # mid-transition ranges — a known Plotly interaction. Dropped.)
+    transition=dict(duration=450, easing="cubic-in-out"),
 )
 
 
@@ -400,6 +405,7 @@ app.layout = html.Div(
             ],
         ),
         dcc.Store(id="filtered-data-store"),
+        dcc.Store(id="kpi-anim-dummy"),
         html.Div(
             className="footer",
             children=(
@@ -741,6 +747,63 @@ app.clientside_callback(
     Output("btn-print", "title"),
     Input("btn-print", "n_clicks"),
     prevent_initial_call=True,
+)
+
+# Animates each KPI card's number counting up (from its previous value, or 0
+# on first load) instead of jump-cutting to the new figure on every filter
+# change. Runs outside Dash's virtual DOM since it mutates textContent
+# directly; the Store output below is just a harmless callback target.
+app.clientside_callback(
+    """
+    function(defects, warranty, complaints, rate, pp100) {
+        window.__kpiAnimCache = window.__kpiAnimCache || {};
+
+        function animate(id, endStr) {
+            const el = document.getElementById(id);
+            if (!el || typeof endStr !== "string") { return; }
+            const match = endStr.match(/^([\\d,]+\\.?\\d*)(%?)$/);
+            if (!match) { el.textContent = endStr; return; }
+
+            const suffix = match[2];
+            const endNum = parseFloat(match[1].replace(/,/g, ""));
+            const decimals = (match[1].split(".")[1] || "").length;
+            const cached = window.__kpiAnimCache[id];
+            const startNum = cached !== undefined ? cached : 0;
+            window.__kpiAnimCache[id] = endNum;
+
+            if (startNum === endNum) { el.textContent = endStr; return; }
+
+            const duration = 700;
+            const startTime = performance.now();
+
+            function step(now) {
+                const progress = Math.min((now - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = startNum + (endNum - startNum) * eased;
+                el.textContent = current.toLocaleString("en-US", {
+                    minimumFractionDigits: decimals,
+                    maximumFractionDigits: decimals,
+                }) + suffix;
+                if (progress < 1) { requestAnimationFrame(step); }
+                else { el.textContent = endStr; }
+            }
+            requestAnimationFrame(step);
+        }
+
+        animate("kpi-defects-value", defects);
+        animate("kpi-warranty-value", warranty);
+        animate("kpi-complaints-value", complaints);
+        animate("kpi-rate-value", rate);
+        animate("kpi-pp100-value", pp100);
+        return Date.now();
+    }
+    """,
+    Output("kpi-anim-dummy", "data"),
+    Input("kpi-defects-value", "children"),
+    Input("kpi-warranty-value", "children"),
+    Input("kpi-complaints-value", "children"),
+    Input("kpi-rate-value", "children"),
+    Input("kpi-pp100-value", "children"),
 )
 
 
