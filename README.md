@@ -2,6 +2,16 @@
 
 An interactive quality analytics dashboard for commercial vehicle manufacturing — defect trend analysis, ML-based anomaly detection, classification, clustering, FMEA-style risk prioritization, and short-term forecasting.
 
+**Live demo:** _deploying — link coming shortly_
+
+## Screenshots
+
+![Dashboard header, industry badges, and KPI cards](docs/screenshots/01_hero.png)
+
+![Anomaly detection, forecast, customer satisfaction impact, and defect heatmap charts](docs/screenshots/02_charts.png)
+
+![Root cause analysis, worst incidents table, and FMEA risk prioritization table](docs/screenshots/03_root_cause_fmea.png)
+
 ## Why this project
 
 Built as a proof-of-work project for the **Data Analyst – Quality and Customer Satisfaction** role at **ALTEN Technology USA**'s Greensboro, NC engineering center, which delivers product development and engineering services for commercial vehicle, heavy truck, EV, rail, and energy clients. The dashboard is scoped and worded around that role specifically:
@@ -69,8 +79,8 @@ Python, Pandas, NumPy, Plotly Dash, scikit-learn (Isolation Forest, Random Fores
 ## Running it
 
 ```bash
-# Install dependencies
-pip install pandas numpy plotly dash scikit-learn matplotlib seaborn scipy jupyter
+# Install dependencies (add -r requirements-notebooks.txt for the notebooks)
+pip install -r requirements.txt
 
 # Generate the dataset (already included, but safe to re-run)
 python generate_data.py
@@ -84,18 +94,26 @@ python app.py
 
 Then open http://localhost:8050
 
-To explore the notebooks: `jupyter notebook EDA.ipynb` or `jupyter notebook ML_Analysis.ipynb`
+To explore the notebooks: `pip install -r requirements-notebooks.txt`, then `jupyter notebook EDA.ipynb` or `jupyter notebook ML_Analysis.ipynb`
+
+## Deployment
+
+`render.yaml` is a Render Blueprint for a one-click deploy: create a free Render account, connect this GitHub repo, and Render auto-detects the blueprint (`pip install -r requirements.txt` build, `gunicorn app:server` start). `app.py` already reads the `PORT` env var and disables debug mode via `DASH_DEBUG=false` for production.
 
 ## Project structure
 
 ```
-app.py               # Dash application: layout, callbacks, charts
-generate_data.py      # Synthetic dataset generator
-quality_data.csv      # Generated dataset (3,528 rows)
-build_database.py    # Loads quality_data.csv into quality_data.db (SQLite)
-queries.sql           # Standalone SQL analysis queries
-fmea.py               # Shared FMEA (Severity x Occurrence x Detection) risk table
-EDA.ipynb             # Exploratory data analysis + hypothesis tests
-ML_Analysis.ipynb     # Severity classifier + quality-profile clustering
-assets/style.css       # Dashboard styling
+app.py                       # Dash application: layout, callbacks, charts
+generate_data.py              # Synthetic dataset generator
+quality_data.csv              # Generated dataset (3,528 rows)
+build_database.py            # Loads quality_data.csv into quality_data.db (SQLite)
+queries.sql                   # Standalone SQL analysis queries
+fmea.py                       # Shared FMEA (Severity x Occurrence x Detection) risk table
+EDA.ipynb                     # Exploratory data analysis + hypothesis tests
+ML_Analysis.ipynb             # Severity classifier + quality-profile clustering
+assets/style.css               # Dashboard styling
+requirements.txt              # Runtime dependencies (dashboard + SQL layer)
+requirements-notebooks.txt    # Additional dependencies for the notebooks
+render.yaml                    # Render Blueprint for one-click deployment
+docs/screenshots/              # README screenshots
 ```

@@ -9,6 +9,7 @@ Run with: python app.py
 Then open http://localhost:8050
 """
 
+import os
 from datetime import datetime
 from io import StringIO
 
@@ -744,4 +745,6 @@ app.clientside_callback(
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8050)
+    port = int(os.environ.get("PORT", 8050))
+    debug = os.environ.get("DASH_DEBUG", "true").lower() == "true"
+    app.run(debug=debug, host="0.0.0.0", port=port)
