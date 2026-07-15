@@ -477,9 +477,13 @@ def update_dashboard(models, categories, lines):
     avg_rate = frame["defect_rate"].mean() if len(frame) else 0
 
     def pp100(slice_frame: pd.DataFrame) -> float:
-        """Complaints per 100 units produced — the industry-standard quality
-        metric (as used in J.D. Power's Initial Quality Study) for tracking
-        customer-reported problems relative to production volume."""
+        """Complaints per 100 units produced — the PP100 format used
+        industry-wide for vehicle quality benchmarking (e.g. J.D. Power's
+        Initial Quality Study uses this format for consumer new-vehicle
+        surveys). This tracks defect-linked complaints from B2B commercial
+        fleets, a narrower and differently-scaled population than a
+        consumer ownership survey, so absolute values aren't meant to be
+        compared 1:1 against published consumer IQS scores."""
         volume = slice_frame["production_volume"].sum()
         return (slice_frame["customer_complaints"].sum() / volume * 100) if volume else 0
 

@@ -44,6 +44,16 @@ MODEL_MULTIPLIER = {
     "Heavy Hauler": 1.15,
 }
 
+# Customer complaints scale off the defect rate (not defect_count) so PP100
+# (complaints per 100 units) lands in a defensible range for B2B commercial
+# vehicle fleets - order-of-magnitude higher than defect_count alone, since
+# one underlying defect is often reported multiple times by different fleet
+# operators/drivers before it's tracked as a single defect record. This is a
+# distinct population from consumer new-vehicle IQS surveys (which run
+# 150-250 PP100) - not meant to match that scale, just to avoid reading as
+# near-zero.
+COMPLAINT_RATE_MULTIPLIER = 4.8
+
 ANOMALY_MODEL = "Electric Van"
 ANOMALY_CATEGORY = "Electrical"
 ANOMALY_START = pd.Timestamp("2024-05-01")
@@ -100,8 +110,11 @@ def build_dataset() -> pd.DataFrame:
                     warranty_claims = int(
                         max(rng.normal(defect_count * 0.55, defect_count * 0.15 + 1), 0)
                     )
+
+                    complaint_rate_pct = defect_rate_pct * COMPLAINT_RATE_MULTIPLIER
+                    complaint_mean = production_volume * complaint_rate_pct / 100
                     customer_complaints = int(
-                        max(rng.normal(defect_count * 0.35, defect_count * 0.12 + 1), 0)
+                        max(rng.normal(complaint_mean, complaint_mean * 0.15 + 1), 0)
                     )
 
                     severity_score = rng.normal(
