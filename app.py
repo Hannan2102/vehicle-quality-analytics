@@ -18,6 +18,8 @@ import plotly.graph_objects as go
 from dash import Dash, Input, Output, State, dash_table, dcc, html
 from sklearn.ensemble import IsolationForest
 
+import fmea
+
 # ---------------------------------------------------------------------------
 # Brand palette
 # ---------------------------------------------------------------------------
@@ -38,6 +40,11 @@ df = pd.read_csv(DATA_PATH, parse_dates=["date"])
 VEHICLE_MODELS = sorted(df["vehicle_model"].unique())
 DEFECT_CATEGORIES = sorted(df["defect_category"].unique())
 PLANT_LINES = sorted(df["plant_line"].unique())
+
+# FMEA risk table is a standing engineering reference computed once from the
+# full historical dataset — it isn't reactive to the dashboard filters,
+# consistent with how FMEAs are periodically reviewed reference documents.
+FMEA_TABLE = fmea.compute_fmea_table(df)
 
 
 def kpi_card(card_id: str, label: str) -> html.Div:
@@ -328,6 +335,59 @@ app.layout = html.Div(
                         "fontSize": "14px",
                         "border": "none",
                         "borderBottom": "1px solid #E7EAEE",
+                    },
+                    style_data_conditional=[
+                        {
+                            "if": {"row_index": "odd"},
+                            "backgroundColor": "#FAFBFC",
+                        }
+                    ],
+                ),
+            ],
+        ),
+        html.Div(
+            className="section-card",
+            children=[
+                html.H2("FMEA-Style Risk Prioritization"),
+                html.P(
+                    "Severity × Occurrence × Detection risk scoring by defect category, ranked "
+                    "by Risk Priority Number (RPN). Occurrence is derived from this dataset's "
+                    "actual defect rates; Severity is derived from actual severity scores; "
+                    "Detection is an engineering-judgment estimate of how hard each failure "
+                    "mode is to catch before it reaches the customer — standard FMEA practice.",
+                    className="section-subtitle",
+                ),
+                dash_table.DataTable(
+                    id="fmea-table",
+                    data=FMEA_TABLE.to_dict("records"),
+                    columns=[
+                        {"name": "Defect Category", "id": "defect_category"},
+                        {"name": "Failure Mode", "id": "failure_mode"},
+                        {"name": "Effect", "id": "effect"},
+                        {"name": "S", "id": "severity"},
+                        {"name": "O", "id": "occurrence"},
+                        {"name": "D", "id": "detection"},
+                        {"name": "RPN", "id": "rpn"},
+                        {"name": "Recommended Action", "id": "recommended_action"},
+                    ],
+                    sort_action="native",
+                    page_size=10,
+                    style_as_list_view=True,
+                    style_header={
+                        "backgroundColor": NAVY,
+                        "color": "white",
+                        "fontWeight": "600",
+                        "border": "none",
+                    },
+                    style_cell={
+                        "padding": "10px 14px",
+                        "fontFamily": "Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+                        "fontSize": "13.5px",
+                        "border": "none",
+                        "borderBottom": "1px solid #E7EAEE",
+                        "textAlign": "left",
+                        "whiteSpace": "normal",
+                        "height": "auto",
                     },
                     style_data_conditional=[
                         {
