@@ -138,24 +138,37 @@ def detect_anomalies(frame: pd.DataFrame) -> pd.DataFrame:
     model = IsolationForest(contamination=0.1, random_state=42)
     features = monthly[["defect_rate"]].values
     preds = model.fit_predict(features)
-    monthly["anomaly"] = preds == -1
+    # Isolation Forest flags statistical extremes in both directions - without
+    # this filter, months at the low end of the improvement trend get flagged
+    # alongside genuine defect spikes, which reads as "something's wrong" on
+    # months that are actually the quality program working. Only the high
+    # side represents an emerging quality issue worth surfacing.
+    monthly["anomaly"] = (preds == -1) & (monthly["defect_rate"] > monthly["defect_rate"].median())
     return monthly
 
 
-def forecast_next_periods(frame: pd.DataFrame, periods: int = 3) -> pd.DataFrame:
-    """Simple linear-trend projection of overall defect rate for the next N months."""
+def forecast_next_periods(frame: pd.DataFrame, periods: int = 3, window: int = 12) -> pd.DataFrame:
+    """Linear-trend projection of overall defect rate for the next N months.
+
+    Fits the slope on a trailing window (default 12 months) rather than the
+    full history, so a distant anomaly (e.g. the 2024 spike) doesn't drag a
+    forecast made two years later. The projection is anchored to the last
+    actual observed value rather than the regression line's own fitted value
+    there, so the forecast starts exactly where the historical line ends
+    instead of jumping to meet a full-history trend line."""
     monthly = frame.groupby("date")["defect_rate"].mean().reset_index().sort_values("date")
     if len(monthly) < 3:
         return pd.DataFrame(columns=["date", "defect_rate"])
 
-    x = np.arange(len(monthly))
-    y = monthly["defect_rate"].values
-    slope, intercept = np.polyfit(x, y, 1)
+    recent = monthly.tail(min(window, len(monthly)))
+    x = np.arange(len(recent))
+    y = recent["defect_rate"].values
+    slope, _ = np.polyfit(x, y, 1)
 
+    last_actual = monthly["defect_rate"].iloc[-1]
     last_date = monthly["date"].max()
     future_dates = pd.date_range(last_date, periods=periods + 1, freq="MS")[1:]
-    future_x = np.arange(len(monthly), len(monthly) + periods)
-    future_y = slope * future_x + intercept
+    future_y = [last_actual + slope * step for step in range(1, periods + 1)]
 
     return pd.DataFrame({"date": future_dates, "defect_rate": future_y})
 
