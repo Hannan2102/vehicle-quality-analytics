@@ -2,7 +2,7 @@
 
 An interactive quality analytics dashboard for commercial vehicle manufacturing — defect trend analysis, ML-based anomaly detection, classification, clustering, FMEA-style risk prioritization, and short-term forecasting.
 
-**Live demo:** _deploying — link coming shortly_
+**Live demo:** [vehicle-quality-analytics.onrender.com](https://vehicle-quality-analytics.onrender.com) _(free tier — spins down after 15 min idle, takes ~50s to wake on first request)_
 
 ## Screenshots
 
