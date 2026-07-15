@@ -44,15 +44,15 @@ MODEL_MULTIPLIER = {
     "Heavy Hauler": 1.15,
 }
 
-# Customer complaints scale off the defect rate (not defect_count) so PP100
-# (complaints per 100 units) lands in a defensible range for B2B commercial
-# vehicle fleets - order-of-magnitude higher than defect_count alone, since
-# one underlying defect is often reported multiple times by different fleet
-# operators/drivers before it's tracked as a single defect record. This is a
-# distinct population from consumer new-vehicle IQS surveys (which run
-# 150-250 PP100) - not meant to match that scale, just to avoid reading as
-# near-zero.
-COMPLAINT_RATE_MULTIPLIER = 4.8
+# Customer complaints scale off the defect rate (not a fixed fraction of
+# defect_count) so the relationship still tracks anomalies/improvement
+# trends. The multiplier is chosen so the three customer-facing metrics
+# form a clean, defensible funnel: defects_found >= customer_complaints >=
+# warranty_claims (not every defect is noticed by the customer; not every
+# complaint escalates to a formal claim) - rather than complaints
+# outnumbering the defects they stem from, which would need an awkward
+# "one defect, many reports" justification to defend.
+COMPLAINT_RATE_MULTIPLIER = 0.9
 
 ANOMALY_MODEL = "Electric Van"
 ANOMALY_CATEGORY = "Electrical"
