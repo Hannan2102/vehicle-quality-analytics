@@ -523,7 +523,12 @@ def update_dashboard(models, categories, lines):
             line=dict(color=AMBER, width=3),
         )
     )
-    fig_trend.update_layout(title="Defect & Warranty Trend", **CHART_LAYOUT_DEFAULTS)
+    fig_trend.update_layout(
+        title="Defect & Warranty Trend",
+        xaxis_title="Month",
+        yaxis_title="Count",
+        **CHART_LAYOUT_DEFAULTS,
+    )
 
     # --- Defects by category ---
     by_category = (
@@ -537,7 +542,12 @@ def update_dashboard(models, categories, lines):
             marker_color=NAVY,
         )
     )
-    fig_category.update_layout(title="Defects by Category", **CHART_LAYOUT_DEFAULTS)
+    fig_category.update_layout(
+        title="Defects by Category",
+        xaxis_title="Total Defects",
+        yaxis_title="Defect Category",
+        **CHART_LAYOUT_DEFAULTS,
+    )
 
     # --- Anomaly detection ---
     anomaly_df = detect_anomalies(frame)
@@ -562,7 +572,10 @@ def update_dashboard(models, categories, lines):
         )
     )
     fig_anomaly.update_layout(
-        title="Anomaly Detection (Isolation Forest)", **CHART_LAYOUT_DEFAULTS
+        title="Anomaly Detection (Isolation Forest)",
+        xaxis_title="Month",
+        yaxis_title="Defect Rate (%)",
+        **CHART_LAYOUT_DEFAULTS,
     )
 
     # --- Forecast ---
@@ -596,7 +609,12 @@ def update_dashboard(models, categories, lines):
             opacity=0.12,
             line_width=0,
         )
-    fig_forecast.update_layout(title="3-Month Defect Rate Forecast", **CHART_LAYOUT_DEFAULTS)
+    fig_forecast.update_layout(
+        title="3-Month Defect Rate Forecast",
+        xaxis_title="Year",
+        yaxis_title="Defect Rate (%)",
+        **CHART_LAYOUT_DEFAULTS,
+    )
 
     # --- Customer impact by vehicle model ---
     impact = (
@@ -622,7 +640,11 @@ def update_dashboard(models, categories, lines):
         )
     )
     fig_impact.update_layout(
-        title="Customer Satisfaction Impact by Vehicle Model", barmode="group", **CHART_LAYOUT_DEFAULTS
+        title="Customer Satisfaction Impact by Vehicle Model",
+        xaxis_title="Vehicle Model",
+        yaxis_title="Count",
+        barmode="group",
+        **CHART_LAYOUT_DEFAULTS,
     )
 
     # --- Heatmap ---
@@ -641,7 +663,12 @@ def update_dashboard(models, categories, lines):
             colorbar=dict(title="Defect Rate (%)"),
         )
     )
-    fig_heatmap.update_layout(title="Defect Heatmap — Model × Category", **CHART_LAYOUT_DEFAULTS)
+    fig_heatmap.update_layout(
+        title="Defect Heatmap — Model × Category",
+        xaxis_title="Defect Category",
+        yaxis_title="Vehicle Model",
+        **CHART_LAYOUT_DEFAULTS,
+    )
 
     # --- Root cause analysis ---
     issues = compute_root_causes(frame)
